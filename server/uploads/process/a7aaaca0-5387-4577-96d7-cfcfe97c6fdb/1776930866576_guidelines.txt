@@ -1,0 +1,18 @@
+# Writing Guidelines
+
+## Voice & Tone
+- Lead with narrative. Every point should feel like part of a story.
+- Use contractions freely (it's, you're, we've). Feels like conversation.
+- Assume no prior knowledge. Explain every concept on first mention.
+
+## Article Structure
+- Place an H2 every 300 words to help scanners navigate.
+
+## Sentences & Paragraphs
+- Max sentence length: 20 words. If longer, split it.
+- Max 3 sentences per paragraph. Short paragraphs aid scanning.
+
+## Formatting
+
+## SEO
+- Place the primary keyword naturally within the first 100 words.
