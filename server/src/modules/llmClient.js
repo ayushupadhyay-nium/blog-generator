@@ -86,15 +86,37 @@ export function getModel() {
 export async function callLLM(systemPrompt, userPrompt, maxTokens = 4096) {
   const client = buildClient()
   const model = getModel()
+  const maxRetries = 3
+  const initialDelayMs = 1000
 
-  const response = await client.chat.completions.create({
-    model,
-    max_tokens: maxTokens,
-    messages: [
-      { role: 'system', content: systemPrompt },
-      { role: 'user', content: userPrompt }
-    ]
-  })
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    try {
+      const response = await client.chat.completions.create({
+        model,
+        max_tokens: maxTokens,
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userPrompt }
+        ]
+      })
+      return response.choices[0].message.content
+    } catch (error) {
+      const isRateLimit = error.status === 429
+      const isLastAttempt = attempt === maxRetries - 1
 
-  return response.choices[0].message.content
+      if (isRateLimit && !isLastAttempt) {
+        // Extract retry-after from headers or use exponential backoff
+        const retryAfter = error.headers?.['retry-after']
+        const delayMs = retryAfter
+          ? parseInt(retryAfter) * 1000
+          : initialDelayMs * Math.pow(2, attempt)
+
+        console.log(`Rate limited. Retrying in ${delayMs}ms (attempt ${attempt + 1}/${maxRetries})`)
+        await new Promise(resolve => setTimeout(resolve, delayMs))
+        continue
+      }
+
+      throw error
+    }
+  }
 }
